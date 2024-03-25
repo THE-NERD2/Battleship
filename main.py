@@ -7,6 +7,8 @@ from time import sleep
 import random
 import pygame
 from pygame.locals import MOUSEBUTTONDOWN, QUIT
+
+
 # Each square has a corresponding tile class
 class Tile(pygame.sprite.Sprite):
   # Types: E: Empty, H: Hit, M: Miss, S: Ship, s: Damaged ship
@@ -15,13 +17,16 @@ class Tile(pygame.sprite.Sprite):
     self.type = "E"
     self.rect = pygame.Rect(x, y, 20, 20)
     self.surf = surf
+
   def setType(self, t):
     if t in ("E", "H", "M", "S", "s"):
       self.type = t
+
   def draw(self):
     if self.type == "s":
       pygame.draw.rect(self.surf, (191, 191, 191), self.rect)
-      pygame.draw.rect(self.surf, (255, 0, 0), pygame.Rect(self.rect.x + 5, self.rect.y + 5, 10, 10))
+      pygame.draw.rect(self.surf, (255, 0, 0),
+                       pygame.Rect(self.rect.x + 5, self.rect.y + 5, 10, 10))
       color = None
     elif self.type == "E":
       color = None
@@ -34,7 +39,10 @@ class Tile(pygame.sprite.Sprite):
     if color is not None:
       pygame.draw.rect(self.surf, color, self.rect)
     pygame.draw.rect(self.surf, (255, 255, 255), self.rect, 1)
+
+
 class Opponent:
+
   def __init__(self):
     global allPositions
     self.shipPositions = []
@@ -75,6 +83,7 @@ class Opponent:
     self.placeShip(2, self.destroyerPositions)
     while self.failed:
       self.placeShip(2, self.destroyerPositions)
+
   def placeShip(self, length, positionsVariable):
     directions = ((0, 1), (0, -1), (1, 0), (-1, 0))
     p1 = random.sample(self.shipPositionsRemaining, 1)[0]
@@ -110,6 +119,7 @@ class Opponent:
         p1 = (p1[0] + finDirection[0], p1[1] + finDirection[1])
         positionsVariable.append(p1)
         self.shipPositions.append(p1)
+
   def attack(self):
     # Don't put your ships together or it will probably get really confused
     global hitTiles, running, text
@@ -124,7 +134,8 @@ class Opponent:
           # Going to try to go the other way from the first shot position that hit
           self.attemptingRestart = True
           self.shotDirection = (-self.shotDirection[0], -self.shotDirection[1])
-          shot = (self.destroyingShots[0][0] + self.shotDirection[0], self.destroyingShots[0][1] + self.shotDirection[1])
+          shot = (self.destroyingShots[0][0] + self.shotDirection[0],
+                  self.destroyingShots[0][1] + self.shotDirection[1])
           self.processShot(shot)
           if self.tryAgain:
             self.tryAgain = False
@@ -154,14 +165,16 @@ class Opponent:
       else:
         # Keep shooting in the expected direction that the ship exists
         position = self.prevShot["position"]
-        shot = (position[0] + self.shotDirection[0], position[1] + self.shotDirection[1])
+        shot = (position[0] + self.shotDirection[0],
+                position[1] + self.shotDirection[1])
         self.processShot(shot)
         if self.tryAgain:
           self.tryAgain = False
           # Treat this like we missed after firing without sinking; going to try to go the other way from the first shot position that hit
           self.attemptingRestart = True
           self.shotDirection = (-self.shotDirection[0], -self.shotDirection[1])
-          shot = (self.destroyingShots[0][0] + self.shotDirection[0], self.destroyingShots[0][1] + self.shotDirection[1])
+          shot = (self.destroyingShots[0][0] + self.shotDirection[0],
+                  self.destroyingShots[0][1] + self.shotDirection[1])
           self.processShot(shot)
           if self.tryAgain:
             self.tryAgain = False
@@ -187,8 +200,11 @@ class Opponent:
           # Test the legality of a direction
           direction = random.sample(self.possibleShotDirections, 1)[0]
           self.possibleShotDirections.remove(direction)
-          shot = (self.destroyingShots[0][0] + direction[0], self.destroyingShots[0][1] + direction[1])
-          if shot in self.shotPositionsRemaining and not shot[0] < 0 and not shot[0] > 9 and not shot[1] < 0 and not shot[1] > 9:
+          shot = (self.destroyingShots[0][0] + direction[0],
+                  self.destroyingShots[0][1] + direction[1])
+          if shot in self.shotPositionsRemaining and not shot[
+              0] < 0 and not shot[0] > 9 and not shot[1] < 0 and not shot[
+                  1] > 9:
             legal = True
         # Fire
         self.processShot(shot)
@@ -199,8 +215,11 @@ class Opponent:
             # Test the legality of a direction
             direction = random.sample(self.possibleShotDirections, 1)[0]
             self.possibleShotDirections.remove(direction)
-            shot = (self.destroyingShots[0][0] + direction[0], self.destroyingShots[0][1] + direction[1])
-            if shot in self.shotPositionsRemaining and not shot[0] < 0 and not shot[0] > 9 and not shot[1] < 0 and not shot[1] > 9:
+            shot = (self.destroyingShots[0][0] + direction[0],
+                    self.destroyingShots[0][1] + direction[1])
+            if shot in self.shotPositionsRemaining and not shot[
+                0] < 0 and not shot[0] > 9 and not shot[1] < 0 and not shot[
+                    1] > 9:
               legal = True
           # Fire
           self.processShot(shot)
@@ -225,6 +244,7 @@ class Opponent:
       # Missed; keep shooting randomly
       shot = random.sample(self.shotPositionsRemaining, 1)[0]
       self.processShot(shot)
+
   def processShot(self, shot):
     global aircraftCarrierPositions, battleshipPositions, cruiserPositions, submarinePositions, destroyerPositions, text, running, hitTiles
     try:
@@ -280,11 +300,10 @@ class Opponent:
       draw()
       running = False
       return
-    self.prevShot = {
-      "result": result,
-      "position": shot
-    }
-def pollClicks(setFlag = 0):
+    self.prevShot = {"result": result, "position": shot}
+
+
+def pollClicks(setFlag=0):
   # The setFlag variable represents which allowed data sets to poll clicks from
   global lastClickPos, prevClickPos
   while lastClickPos == prevClickPos:
@@ -301,6 +320,8 @@ def pollClicks(setFlag = 0):
               if j.rect.collidepoint(event.pos):
                 lastClickPos = (event.pos[0] // 20, event.pos[1] // 20)
   prevClickPos = lastClickPos
+
+
 def draw():
   global shotTiles, hitTiles
   pygame.draw.rect(surf, (0, 0, 0), pygame.Rect(0, 0, 400, 400))
@@ -313,6 +334,8 @@ def draw():
   pygame.draw.line(surf, (100, 100, 100), (0, 200), (200, 200), 3)
   renderText()
   pygame.display.flip()
+
+
 def renderText():
   global font, text, surf
   words = text.split(" ")
@@ -347,6 +370,8 @@ def renderText():
     rect.y = line * 20
     surf.blit(finText, rect)
     line += 1
+
+
 def placeShip(name, length, positionsVariable):
   global hitTiles, shipPositions, text
   text = f"Click on {name} position 1"
@@ -363,7 +388,8 @@ def placeShip(name, length, positionsVariable):
   exceedsBoundaries = False
   text = f"Click on {name} position 2"
   draw()
-  while bool(lastClickPos[0] == p1[0]) == bool(lastClickPos[1] - 10 == p1[1]) or exceedsBoundaries:
+  while bool(lastClickPos[0] == p1[0]) == bool(
+      lastClickPos[1] - 10 == p1[1]) or exceedsBoundaries:
     exceedsBoundaries = False
     pollClicks(2)
     if lastClickPos[0] > p1[0]:
@@ -390,6 +416,8 @@ def placeShip(name, length, positionsVariable):
     shipPositions.append(p1)
     hitTiles[p1[1]][p1[0]].setType("S")
   draw()
+
+
 def main():
   global shotTiles, hitTiles, shipPositions, aircraftCarrierPositions, battleshipPositions, cruiserPositions, submarinePositions, destroyerPositions, allPositions, surf, lastClickPos, prevClickPos, sinks, font, text
   pygame.init()
@@ -495,5 +523,7 @@ def main():
     draw()
     sleep(1)
     opponent.attack()
+
+
 if __name__ == "__main__":
   main()
