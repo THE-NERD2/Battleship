@@ -228,35 +228,30 @@ class Opponent:
         result = "sink"
       else:
         result = "hit"
-      print("aircraft carrier")
       aircraftCarrierPositions.remove(shot)
     elif shot in battleshipPositions:
       if len(battleshipPositions) == 1:
         result = "sink"
       else:
         result = "hit"
-      print("battleship")
       battleshipPositions.remove(shot)
     elif shot in cruiserPositions:
       if len(cruiserPositions) == 1:
         result = "sink"
       else:
         result = "hit"
-      print("cruiser")
       cruiserPositions.remove(shot)
     elif shot in submarinePositions:
       if len(submarinePositions) == 1:
         result = "sink"
       else:
         result = "hit"
-      print("submarine")
       submarinePositions.remove(shot)
     elif shot in destroyerPositions:
       if len(destroyerPositions) == 1:
         result = "sink"
       else:
         result = "hit"
-      print("destroyer")
       destroyerPositions.remove(shot)
     else:
       # We didn't hit any of the ships; declare it a miss
