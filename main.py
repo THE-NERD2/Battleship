@@ -180,19 +180,8 @@ class Opponent:
         position = self.prevShot["position"]
         self.destroyingShots.append(position)
         self.testingDirections = True
-      # Keep looking for a legal direction in which to fire
-      legal = False
-      while not legal:
-        # Test the legality of a direction
-        direction = random.sample(self.possibleShotDirections, 1)[0]
-        self.possibleShotDirections.remove(direction)
-        shot = (self.destroyingShots[0][0] + direction[0], self.destroyingShots[0][1] + direction[1])
-        if shot in self.shotPositionsRemaining and not shot[0] < 0 and not shot[0] > 9 and not shot[1] < 0 and not shot[1] > 9:
-          legal = True
-      # Fire
-      self.processShot(shot)
-      while self.tryAgain:
-        self.tryAgain = False
+      try:
+        # Keep looking for a legal direction in which to fire
         legal = False
         while not legal:
           # Test the legality of a direction
@@ -203,13 +192,35 @@ class Opponent:
             legal = True
         # Fire
         self.processShot(shot)
-      if self.prevShot["result"] == "hit":
-        # The shot was successful!
-        # Set the predicted direction in which the ship exists
-        self.possibleShotDirections = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        self.testingDirections = False
-        self.shotDirection = direction
-        self.destroying = True
+        while self.tryAgain:
+          self.tryAgain = False
+          legal = False
+          while not legal:
+            # Test the legality of a direction
+            direction = random.sample(self.possibleShotDirections, 1)[0]
+            self.possibleShotDirections.remove(direction)
+            shot = (self.destroyingShots[0][0] + direction[0], self.destroyingShots[0][1] + direction[1])
+            if shot in self.shotPositionsRemaining and not shot[0] < 0 and not shot[0] > 9 and not shot[1] < 0 and not shot[1] > 9:
+              legal = True
+          # Fire
+          self.processShot(shot)
+        if self.prevShot["result"] == "hit":
+          # The shot was successful!
+          # Set the predicted direction in which the ship exists
+          self.possibleShotDirections = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+          self.testingDirections = False
+          self.shotDirection = direction
+          self.destroying = True
+      except ValueError:
+        # What happened is that a hit was scored on a ship that had been partially destroyed. This particular place was surrounded by previous shots, so it would be illegal to test directions
+        # Shoot randomly
+        # TODO: if algorithm notices that it has partially destroyed ships, keep shooting at them! (see lines 1, 132, 141)
+        self.attemptingRestart = False
+        self.destroying = False
+        self.shotDirection = None
+        self.destroyingShots = []
+        shot = random.sample(self.shotPositionsRemaining, 1)[0]
+        self.processShot(shot)
     else:
       # Missed; keep shooting randomly
       shot = random.sample(self.shotPositionsRemaining, 1)[0]
